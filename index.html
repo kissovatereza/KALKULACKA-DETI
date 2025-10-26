@@ -1,28 +1,21 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dávkování antipyretik pro děti</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="manifest.json">
+  <title>Paracetamol a Ibuprofen kalkulačka</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    input { width: 50px; }
+    ul { margin-top: 10px; }
+    li { margin-bottom: 5px; }
+    p.note { color: darkred; font-weight: bold; }
+  </style>
 </head>
 <body>
-  <h1>Dávkování antipyretik pro děti</h1>
-
-  <div class="container">
-    <label for="weight">Hmotnost dítěte (kg):</label>
-    <input type="number" id="weight" placeholder="např. 10" min="1" step="0.1">
-    <button onclick="vypocitejDavku()">Vypočítat dávku</button>
-  </div>
-
-  <div id="vysledek"></div>
-
-  <footer>
-    <p><strong>Upozornění:</strong> Výpočet je pouze orientační. Řiďte se příbalovým letákem a doporučením lékaře. 
-    Nikdy nepřekračujte dávku 15 mg/kg u paracetamolu a 10 mg/kg u ibuprofenu. 
-    Léky podávejte při teplotě ≥ 38 °C, můžete je střídat po 3–4 h.</p>
-  </footer>
+  <h1>Paracetamol a Ibuprofen - dávkovací kalkulačka</h1>
+  <p>Zadej hmotnost dítěte (kg): <input type="number" id="weight" min="0"> <button onclick="showMeds()">Spočítat</button></p>
+  <div id="output"></div>
 
   <script src="script.js"></script>
 </body>
