@@ -2,28 +2,85 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dávkování antipyretik pro děti</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dětské dávkování léků</title>
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.png" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2em;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    input {
+      padding: 0.5em;
+      font-size: 1em;
+      width: 120px;
+      margin-right: 10px;
+    }
+    button {
+      padding: 0.5em 1em;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 2em;
+      background: white;
+      padding: 1em;
+      border-radius: 6px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    h2 { margin-top: 1.5em; }
+  </style>
 </head>
 <body>
-  <h1>Dávkování antipyretik pro děti</h1>
+  <h1>Dávkování léků pro děti</h1>
+  <p>Zadej hmotnost dítěte (v kg):</p>
+  <input type="number" id="weight" min="1" step="0.1" />
+  <button onclick="showMeds()">Zobrazit léky</button>
 
-  <div class="container">
-    <label for="weight">Hmotnost dítěte (kg):</label>
-    <input type="number" id="weight" placeholder="např. 10" min="1" step="0.1">
-    <button onclick="vypocitejDavku()">Vypočítat dávku</button>
-  </div>
+  <div id="output" class="result"></div>
 
-  <div id="vysledek"></div>
+  <script>
+    const meds = [
+      { name: "Paracetamol sirup (Paralen, Panadol)", dose: "10–15 mg/kg/dávku každých 6 hodin" },
+      { name: "Paracetamol čípek", dose: "10–15 mg/kg/dávku každých 6 hodin" },
+      { name: "Nurofen sirup (ibuprofen)", dose: "5–10 mg/kg/dávku každých 6–8 hodin" },
+      { name: "Nurofen čípek (ibuprofen)", dose: "5–10 mg/kg/dávku každých 6–8 hodin" },
+      { name: "Fenistil kapky", dose: "0,1 mg/kg/dávku 3× denně" },
+      { name: "Cetirizin sirup", dose: "2,5–5 mg 1–2× denně podle věku" },
+      { name: "Ondansetron sirup", dose: "0,1 mg/kg jednorázově (max 8 mg)" },
+      { name: "Paralen 125 mg čípek", dose: "do 10 kg – 1 čípek každých 6 hod" },
+      { name: "Paralen 250 mg čípek", dose: "nad 12 kg – 1 čípek každých 6 hod" },
+      { name: "Ibalgin suspenze 100 mg/5 ml", dose: "5–10 mg/kg každých 6–8 hod" }
+    ];
 
-  <footer>
-    <p><strong>Upozornění:</strong> Výpočet je pouze orientační. Řiďte se příbalovým letákem a doporučením lékaře. 
-    Nikdy nepřekračujte dávku 15 mg/kg u paracetamolu a 10 mg/kg u ibuprofenu. 
-    Léky podávejte při teplotě ≥ 38 °C, můžete je střídat po 3–4 h.</p>
-  </footer>
+    function showMeds() {
+      const weight = parseFloat(document.getElementById('weight').value);
+      const output = document.getElementById('output');
+      output.innerHTML = '';
 
-  <script src="script.js"></script>
+      if (!weight || weight <= 0) {
+        output.innerHTML = '<p>Zadej platnou hmotnost dítěte.</p>';
+        return;
+      }
+
+      output.innerHTML = `<h2>Dávkování pro ${weight} kg:</h2>`;
+      const ul = document.createElement('ul');
+
+      meds.forEach(med => {
+        const li = document.createElement('li');
+        li.textContent = `${med.name}: ${med.dose}`;
+        ul.appendChild(li);
+      });
+
+      output.appendChild(ul);
+    }
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
 </body>
 </html>
