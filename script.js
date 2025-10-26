@@ -1,61 +1,81 @@
-function vypocitejDavku() {
-  const weight = parseFloat(document.getElementById("weight").value);
-  const vysledekDiv = document.getElementById("vysledek");
+const meds = [
+  {
+    name: "Paralen 100 mg čípek",
+    type: "cip",
+    dosePerKg: 15,
+    maxDose: 100,
+  },
+  {
+    name: "Paralen 250 mg čípek",
+    type: "cip",
+    dosePerKg: 15,
+    maxDose: 250,
+  },
+  {
+    name: "Paracetamol sirup 24 mg/ml (Panadol)",
+    type: "sirup",
+    dosePerKg: 15,
+    maxDose: 1000,
+  },
+  {
+    name: "Ibalgin sirup 20 mg/ml",
+    type: "sirup",
+    dosePerKg: 7,
+    maxDose: 400,
+    minAgeMonths: 3
+  },
+  {
+    name: "Ibalgin čípek 60 mg",
+    type: "cip",
+    dosePerKg: 7,
+    maxDose: 60,
+    minAgeMonths: 3
+  },
+  {
+    name: "Ibalgin čípek 125 mg",
+    type: "cip",
+    dosePerKg: 7,
+    maxDose: 125,
+    minAgeMonths: 3
+  }
+];
 
-  if (isNaN(weight) || weight <= 0) {
-    vysledekDiv.innerHTML = "<p>Zadejte prosím platnou hmotnost dítěte v kilogramech.</p>";
+function showMeds() {
+  const weight = parseFloat(document.getElementById("weight").value);
+  const output = document.getElementById("output");
+  output.innerHTML = '';
+
+  if (!weight || weight <= 0) {
+    output.innerHTML = "<p>Zadej platnou hmotnost dítěte.</p>";
     return;
   }
 
-  let html = `<h2>Výpočet pro ${weight} kg</h2>`;
+  const ul = document.createElement("ul");
 
-  // --- PARACETAMOL ---
-  const paracetamolMg = Math.round(weight * 15);
-  const paracetamolMin = Math.round(weight * 10);
-  const paracetamolMax = Math.round(weight * 15);
+  meds.forEach(med => {
+    const calculatedDose = Math.round(weight * med.dosePerKg);
+    let doseToShow = calculatedDose > med.maxDose ? med.maxDose : calculatedDose;
 
-  html += `
-  <div class="lek">
-    <h3>Paracetamol</h3>
-    <p><strong>Dávka:</strong> ${paracetamolMin}–${paracetamolMax} mg (obvykle ${paracetamolMg} mg)</p>
-    <p><strong>Interval:</strong> každých 6 hodin, max 4× denně</p>
-    <ul>
-      <li><strong>Paralen / Panadol sirup</strong> (120 mg/5 ml): ${(paracetamolMg / 120 * 5).toFixed(1)} ml</li>
-      <li><strong>Paralen sirup</strong> (24 mg/ml): ${(paracetamolMg / 24).toFixed(1)} ml</li>
-      <li><strong>Paralen čípek 100 mg</strong> – pro děti cca do 8 kg</li>
-      <li><strong>Paralen čípek 125 mg</strong> – pro děti cca do 12 kg</li>
-      <li><strong>Paralen čípek 250 mg</strong> – pro děti cca 13–20 kg</li>
-      <li><strong>Paralen čípek 500 mg</strong> – pro větší děti cca nad 25 kg</li>
-    </ul>
-  </div>
-  `;
+    // logika pro čípky: pokud dávka menší než čípek, nedoporučovat
+    if(med.type === "cip" && doseToShow < med.maxDose - 20) {
+      doseToShow = med.maxDose; // zaokrouhlení orientační
+    }
 
-  // --- IBUPROFEN ---
-  const ibuMg = Math.round(weight * 10);
-  const ibuMin = Math.round(weight * 5);
-  const ibuMax = Math.round(weight * 10);
+    // pokud by čípek překročil max, nedoporučovat
+    if(med.type === "cip" && calculatedDose > med.maxDose) return;
 
-  html += `
-  <div class="lek">
-    <h3>Ibuprofen</h3>
-    <p><strong>Dávka:</strong> ${ibuMin}–${ibuMax} mg (obvykle ${ibuMg} mg)</p>
-    <p><strong>Interval:</strong> každých 6–8 hodin, max 3–4× denně</p>
-    <ul>
-      <li><strong>Nurofen sirup</strong> (100 mg/5 ml): ${(ibuMg / 100 * 5).toFixed(1)} ml</li>
-      <li><strong>Nurofen čípek 60 mg</strong> – pro děti cca do 12 kg</li>
-      <li><strong>Nurofen čípek 125 mg</strong> – pro děti cca 12–20 kg</li>
-    </ul>
-    <p><em>Lze podávat od věku 3 měsíců.</em></p>
-  </div>
-  `;
+    const li = document.createElement("li");
+    li.textContent = `${med.name}: doporučená dávka cca ${doseToShow} mg`;
+    ul.appendChild(li);
+  });
 
-  html += `
-  <div class="dopln">
-    <p><strong>Doporučení:</strong> Antipyretika se podávají při teplotě ≥ 38 °C. 
-    Paracetamol a ibuprofen je možné střídat po 3–4 hodinách, pokud horečka přetrvává. 
-    Vždy dodržujte pokyny lékaře a příbalový leták.</p>
-  </div>
-  `;
+  // upozornění k nurofenu
+  const note = document.createElement("p");
+  note.innerHTML = "⚠️ Nurofen (ibuprofen) se podává od 3 měsíců. Můžete střídat paracetamol a ibuprofen po 3–4 hodinách.";
+  output.appendChild(note);
+  output.appendChild(ul);
+}
 
-  vysledekDiv.innerHTML = html;
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
 }
