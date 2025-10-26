@@ -6,7 +6,7 @@ Tato aplikace je orientační pomůcka pro výpočet dávky léků proti horečc
 1. Zadejte hmotnost dítěte (kg)
 2. Kalkulačka doporučí vhodný čípek, sirup nebo tabletu
 3. Dodržujte maximální dávky a intervaly
-4. Nikdy nepřekračujte doporučenou maximální denní dávku.
+4. Nikdy nepřekračujte doporučenou maximální denní dávku
 
 ## Upozornění
 - Ibuprofen/Ibalgin/Nurofen používat nejdříve od 3 měsíců
