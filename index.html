@@ -1,13 +1,118 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Paracetamol a Ibuprofen kalkulačka</title>
-  <link rel="manifest" href="manifest.json">
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    input, button { font-size: 1rem; padding: 5px; margin: 5px 0; }
-    ul { margin-top: 10px; }
-    .warning { background: #fff3cd; padding: 10px; margin-top: 15px; border-left: 5px solid #ffeeba; }
-    .disclaimer { font-size: 0.9rem; margin-top: 10px; color: #555;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kalkulačka dávek dětí</title>
+<meta name="theme-color" content="#2196F3">
+<link rel="manifest" href="manifest.json">
+<style>
+body { font-family: Arial, sans-serif; max-width: 500px; margin: 20px auto; padding: 10px; }
+h1 { text-align: center; }
+label, input, button { display: block; margin: 10px 0; width: 100%; }
+.result { background: #f1f1f1; padding: 10px; margin-top: 20px; border-radius: 5px; }
+.warning { color: red; font-weight: bold; }
+</style>
+</head>
+<body>
+<h1>Kalkulačka dávek</h1>
+<label for="weight">Hmotnost dítěte (kg):</label>
+<input type="number" id="weight" min="1" step="0.1">
+<button onclick="calculateDose()">Spočítat dávky</button>
+
+<div class="result" id="result"></div>
+
+<script>
+// Přesné formy Paracetamolu
+const paracetamolCipky = [
+  {name: 'Paralen 100 mg rektální čípek', mg: 100},
+  {name: 'Panadol 125 mg rektální čípek', mg: 125},
+  {name: 'Panadol 250 mg rektální čípek', mg: 250}
+];
+const paracetamolTablety = [
+  {name: 'Panadol 125 mg tableta', mg: 125},
+  {name: 'Paralen 500 mg tableta', mg: 500}
+];
+const paracetamolSirup = {name: 'Panadol 24 mg/ml sirup', conc: 24};
+
+// Přesné formy Ibuprofenu
+const ibuprofenCipky = [
+  {name: 'Nurofen 60 mg rektální čípek', mg: 60},
+  {name: 'Nurofen 125 mg rektální čípek', mg: 125}
+];
+const ibuprofenTablety = [
+  {name: 'Ibalgin 200 mg tableta', mg: 200},
+  {name: 'Ibalgin 400 mg tableta', mg: 400}
+];
+const ibuprofenSirupy = [
+  {name: 'Nurofen 20 mg/ml sirup', conc: 20},
+  {name: 'Nurofen 40 mg/ml sirup', conc: 40}
+];
+
+function findClosestCipek(dose, cipekArray){
+  // Najde největší čípek ≤ dávce
+  let suitable = cipekArray.filter(c => c.mg <= dose);
+  if(suitable.length === 0) return null;
+  return suitable.reduce((prev, curr) => (curr.mg > prev.mg ? curr : prev));
+}
+
+function findTablet(dose, tabletArray){
+  // Najde největší tabletku ≤ dávce
+  let suitable = tabletArray.filter(t => t.mg <= dose);
+  if(suitable.length === 0) return null;
+  return suitable.reduce((prev, curr) => (curr.mg > prev.mg ? curr : prev));
+}
+
+function calculateDose() {
+  const weight = parseFloat(document.getElementById('weight').value);
+  const resultDiv = document.getElementById('result');
+  if(!weight || weight <= 0) {
+    resultDiv.innerHTML = '<p class="warning">Zadejte platnou hmotnost.</p>';
+    return;
+  }
+
+  // Paracetamol
+  let paraDose = +(15 * weight).toFixed(1); // mg
+  if(paraDose > 1000) paraDose = 1000; // max 1 g
+  let paraCipek = findClosestCipek(paraDose, paracetamolCipky);
+  let paraTableta = findTablet(paraDose, paracetamolTablety);
+  let paraOutput = '';
+  if(paraCipek) paraOutput = `${paraDose} mg → ${paraCipek.name}`;
+  else if(paraTableta) paraOutput = `${paraDose} mg → ${paraTableta.name}`;
+  else paraOutput = `${paraDose} mg → ${paracetamolSirup.name} (ml = ${(paraDose/paracetamolSirup.conc).toFixed(1)})`;
+
+  // Ibuprofen
+  let ibuDose = +(7 * weight).toFixed(1); // mg
+  if(ibuDose > 400) ibuDose = 400; // max 400 mg
+  let ibuCipek = findClosestCipek(ibuDose, ibuprofenCipky);
+  let ibuTableta = findTablet(ibuDose, ibuprofenTablety);
+  let ibuSirup = ibuprofenSirupy[0]; // default 20 mg/ml, lze rozšířit
+  let ibuOutput = '';
+  if(ibuCipek) ibuOutput = `${ibuDose} mg → ${ibuCipek.name}`;
+  else if(ibuTableta) ibuOutput = `${ibuDose} mg → ${ibuTableta.name}`;
+  else ibuOutput = `${ibuDose} mg → ${ibuSirup.name} (ml = ${(ibuDose/ibuSirup.conc).toFixed(1)})`;
+
+  // Výstup
+  resultDiv.innerHTML = `
+    <h2>Doporučené dávky</h2>
+    <p><strong>Paracetamol:</strong> ${paraOutput}</p>
+    <p><strong>Ibuprofen:</strong> ${ibuOutput}</p>
+    <p class="warning">
+      Upozornění:<br>
+      - Čípky Nurofen od 3 měsíců<br>
+      - Podávat při teplotě ≥38 °C<br>
+      - Střídat paracetamol a ibuprofen po 3–4 hodinách<br>
+      - Interval stejného léku 6 hodin, max. 4×/24 h
+    </p>
+  `;
+}
+
+// Service Worker registrace
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js')
+  .then(() => console.log('Service Worker zaregistrován.'))
+  .catch(err => console.log('SW chyba:', err));
+}
+</script>
+</body>
+</html>
